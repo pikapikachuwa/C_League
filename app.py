@@ -619,6 +619,23 @@ def import_excel():
         return jsonify({'success': False, 'error': str(e)}), 400
 
 
+# ==================== ダッシュボード（テンプレート） ====================
+
+@app.route('/dashboard')
+def dashboard():
+    """Season3 ダッシュボード"""
+    return render_template('dashboard.html')
+
+@app.route('/total_dashboard')
+def total_dashboard():
+    """Season2+3 通算ダッシュボード"""
+    return render_template('total_dashboard.html')
+
+@app.route('/rank_board')
+def rank_board_ui():
+    """WGランクボード"""
+    return render_template('rank_board.html')
+
 # ==================== エラーハンドラー ====================
 
 @app.errorhandler(404)

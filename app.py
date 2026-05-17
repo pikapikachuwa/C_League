@@ -520,6 +520,105 @@ def get_rank_board():
     return jsonify(board)
 
 
+@app.route('/api/import', methods=['POST'])
+def import_excel():
+    """
+    Excel ファイル（Season2_戦績データ.xlsx）をアップロードしてDB に投入
+    メンバー名マッピング: 土岐, 藤木, 鹿山, 河井, 松林, 岡崎, 大塚, 矢嶋, 本井
+    """
+    try:
+        # ファイルアップロード確認
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'ファイルがアップロードされていません'}), 400
+
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'ファイルが選択されていません'}), 400
+
+        # Excel を読み込み
+        import pandas as pd
+        df = pd.read_excel(file, sheet_name='Season2ALL', header=3)
+
+        # メンバー名 → member_id マッピング
+        member_map = {
+            '土岐': 1, '藤木': 3, '鹿山': 5, '河井': 8, '松林': 4,
+            '岡崎': 6, '大塚': 7, '矢嶋': 2, '本井': 9
+        }
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # match_number の開始位置を決める
+        cursor.execute('SELECT MAX(match_number) FROM matches')
+        result = cursor.fetchone()
+        start_match_number = (result[0] or 0) + 1
+
+        imported_count = 0
+        skipped_count = 0
+
+        # 各行を処理
+        for idx, row in df.iterrows():
+            if pd.isna(row['半荘']):
+                continue
+
+            play_date = row['活動日']
+            if isinstance(play_date, pd.Timestamp):
+                play_date_str = play_date.strftime('%Y-%m-%d')
+            else:
+                play_date_str = str(play_date)
+
+            # 参加メンバーのポイントを抽出
+            match_pts = []
+            for member_name, member_id in member_map.items():
+                pts_val = row[member_name]
+                if pd.isna(pts_val) or pts_val == '-':
+                    continue
+                try:
+                    pts = int(pts_val)
+                    match_pts.append((member_id, pts))
+                except (ValueError, TypeError):
+                    continue
+
+            # 参加者が4人未満の場合はスキップ
+            if len(match_pts) < 4:
+                skipped_count += 1
+                continue
+
+            # 試合を登録
+            cursor.execute(
+                'INSERT INTO matches (match_number, play_date) VALUES (?, ?)',
+                (start_match_number + imported_count, play_date_str)
+            )
+            match_id = cursor.lastrowid
+
+            # 順位を計算
+            sorted_results = sorted(match_pts, key=lambda x: x[1], reverse=True)
+            ranked = [(member_id, pts, i + 1) for i, (member_id, pts) in enumerate(sorted_results)]
+
+            # 結果を登録
+            for member_id, pts, rank in ranked:
+                wg_pt = calc_wg_rank_pt(pts, rank)
+                cursor.execute(
+                    'INSERT INTO results (match_id, member_id, pts, rank, wg_rank_pt) VALUES (?,?,?,?,?)',
+                    (match_id, member_id, pts, rank, wg_pt)
+                )
+
+            imported_count += 1
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'imported': imported_count,
+            'skipped': skipped_count,
+            'message': f'{imported_count}半荘を投入しました（スキップ: {skipped_count}）'
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+
 # ==================== エラーハンドラー ====================
 
 @app.errorhandler(404)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🀄 C_League - 麻雀リーグ管理</title>
+    <title>🀄 試合記録 - C_League</title>
     <style>
         * {
             box-sizing: border-box;
@@ -20,37 +20,133 @@
         }
         
         .container {
-            max-width: 1100px;
+            max-width: 900px;
             margin: 0 auto;
         }
         
         .header {
             text-align: center;
             margin-bottom: 2rem;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
             color: #ffd700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 0.5rem;
         }
         
-        .header p {
+        .back-link {
+            display: inline-block;
+            color: #aaa;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover {
+            color: #fff;
+        }
+        
+        .form-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #ffd700;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.5);
+            border-color: #ffd700;
+        }
+        
+        .form-group input::placeholder {
+            color: #999;
+        }
+        
+        .member-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .member-checkbox {
+            display: none;
+        }
+        
+        .member-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+        
+        .member-checkbox:checked + .member-label {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+        
+        .pts-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .pts-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .pts-input-group label {
             font-size: 0.9rem;
             color: #aaa;
+            margin-bottom: 0.25rem;
         }
         
-        .nav-buttons {
+        .pts-input-group input {
+            padding: 0.5rem;
+        }
+        
+        .form-actions {
             display: flex;
             gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-            flex-wrap: wrap;
+            margin-top: 2rem;
         }
         
         .btn {
@@ -67,11 +163,18 @@
         .btn-primary {
             background: #ffd700;
             color: #222;
+            flex: 1;
         }
         
         .btn-primary:hover {
             background: #ffed4e;
             transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .btn-secondary {
@@ -84,172 +187,204 @@
             background: rgba(255, 255, 255, 0.3);
         }
         
-        .rankings {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .rank-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-        
-        .rank-card:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-4px);
-        }
-        
-        .rank-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 4px;
-            height: 100%;
-            border-radius: 12px 0 0 12px;
-        }
-        
-        .rank-card {
-            position: relative;
-        }
-        
-        .rank-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
             margin-bottom: 1rem;
+            display: none;
         }
         
-        .rank-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .rank-number.gold {
-            color: #ffd700;
-        }
-        
-        .rank-number.silver {
-            color: #c0c0c0;
-        }
-        
-        .rank-number.bronze {
-            color: #cd7f32;
-        }
-        
-        .member-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-        
-        .rank-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .stat {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.75rem;
-            border-radius: 6px;
-            text-align: center;
-        }
-        
-        .stat-label {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .pts-positive {
+        .message.success {
+            background: rgba(102, 187, 106, 0.2);
             color: #66bb6a;
+            border: 1px solid #66bb6a;
         }
         
-        .pts-negative {
+        .message.error {
+            background: rgba(255, 112, 67, 0.2);
             color: #ff7043;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1.5rem;
-            color: #aaa;
-        }
-        
-        .empty-state p {
-            margin-bottom: 1rem;
+            border: 1px solid #ff7043;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🀄 C_League</h1>
-            <p>麻雀リーグ管理システム</p>
-            <div class="nav-buttons">
-                <a href="/" class="btn btn-primary">📊 ランキング</a>
-                <a href="/record" class="btn btn-secondary">➕ 試合記録</a>
-            </div>
+            <a href="/" class="back-link">← ランキングに戻る</a>
+            <h1>試合を記録する</h1>
         </div>
         
-        {% if rankings and rankings|length > 0 %}
-        <div class="rankings" id="rankings-container">
-            {% for rank in rankings %}
-            <div class="rank-card">
-                <div class="rank-header">
-                    <span class="rank-number {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% endif %}">
-                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}位{% endif %}
-                    </span>
-                    <div class="member-name" style="color: {{ rank.color }};">
-                        {{ rank.name }}
+        <div class="form-card">
+            <div id="message" class="message"></div>
+            
+            <form id="match-form">
+                <!-- 試合番号 -->
+                <div class="form-group">
+                    <label for="match_number">試合番号</label>
+                    <input 
+                        type="number" 
+                        id="match_number" 
+                        name="match_number" 
+                        value="{{ next_match_number }}"
+                        readonly
+                        style="background: rgba(0, 0, 0, 0.5);"
+                    >
+                </div>
+                
+                <!-- 活動日 -->
+                <div class="form-group">
+                    <label for="play_date">活動日</label>
+                    <input 
+                        type="date" 
+                        id="play_date" 
+                        name="play_date" 
+                        required
+                    >
+                </div>
+                
+                <!-- メンバー選択 -->
+                <div class="form-group">
+                    <label>参加メンバー（4名を選択）</label>
+                    <div class="member-selection">
+                        {% for member in members %}
+                        <input 
+                            type="checkbox" 
+                            id="member_{{ member.member_id }}"
+                            class="member-checkbox"
+                            value="{{ member.member_id }}"
+                            data-name="{{ member.name }}"
+                        >
+                        <label for="member_{{ member.member_id }}" class="member-label" style="border-color: {{ member.color }};">
+                            {{ member.name }}
+                        </label>
+                        {% endfor %}
                     </div>
                 </div>
-                <div class="rank-stats">
-                    <div class="stat">
-                        <div class="stat-label">累計Pts</div>
-                        <div class="stat-value {% if rank.total_pts and rank.total_pts >= 0 %}pts-positive{% else %}pts-negative{% endif %}">
-                            {% if rank.total_pts %}{{ '+' if rank.total_pts >= 0 else '' }}{{ rank.total_pts }}{% else %}0{% endif %}
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">試合数</div>
-                        <div class="stat-value">{{ rank.match_count or 0 }}回</div>
+                
+                <!-- 得点入力 -->
+                <div class="form-group">
+                    <label>各メンバーの得点（Pts）</label>
+                    <div class="pts-inputs" id="pts-inputs-container">
+                        <!-- JavaScript で動的に生成 -->
                     </div>
                 </div>
-            </div>
-            {% endfor %}
+                
+                <!-- 送信ボタン -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        送信して記録
+                    </button>
+                    <a href="/" class="btn btn-secondary">キャンセル</a>
+                </div>
+            </form>
         </div>
-        {% else %}
-        <div class="empty-state">
-            <p>📭 まだ試合データがありません</p>
-            <p><a href="/record" class="btn btn-primary">最初の試合を記録する →</a></p>
-        </div>
-        {% endif %}
     </div>
     
     <script>
-        // 定期的にランキングを更新（30秒ごと）
-        setInterval(() => {
-            fetch('/api/ranking')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('ランキング更新:', data);
-                    // 必要に応じてページを更新
-                })
-                .catch(err => console.error('更新エラー:', err));
-        }, 30000);
+        const form = document.getElementById('match-form');
+        const messageDiv = document.getElementById('message');
+        const ptsInputsContainer = document.getElementById('pts-inputs-container');
+        const memberCheckboxes = document.querySelectorAll('.member-checkbox');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        // 本日の日付をデフォルト
+        document.getElementById('play_date').valueAsDate = new Date();
+        
+        // メンバー選択時に得点入力欄を動的に生成
+        memberCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updatePtsInputs);
+        });
+        
+        function updatePtsInputs() {
+            ptsInputsContainer.innerHTML = '';
+            const selectedMembers = Array.from(memberCheckboxes)
+                .filter(cb => cb.checked);
+            
+            if (selectedMembers.length !== 4) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = `送信して記録（${selectedMembers.length}/4人選択）`;
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '送信して記録';
+            }
+            
+            selectedMembers.forEach(checkbox => {
+                const memberId = checkbox.value;
+                const memberName = checkbox.dataset.name;
+                
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'pts-input-group';
+                inputGroup.innerHTML = `
+                    <label>${memberName}の得点</label>
+                    <input 
+                        type="number" 
+                        name="pts_${memberId}" 
+                        data-member-id="${memberId}"
+                        required
+                        placeholder="例: +45"
+                    >
+                `;
+                ptsInputsContainer.appendChild(inputGroup);
+            });
+        }
+        
+        // フォーム送信
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const selectedMembers = Array.from(memberCheckboxes)
+                .filter(cb => cb.checked);
+            
+            if (selectedMembers.length !== 4) {
+                showMessage('4名のメンバーを選択してください', 'error');
+                return;
+            }
+            
+            const matchData = {
+                match_number: parseInt(document.getElementById('match_number').value),
+                play_date: document.getElementById('play_date').value,
+                results: selectedMembers.map(checkbox => ({
+                    member_id: parseInt(checkbox.value),
+                    pts: parseInt(document.querySelector(`input[name="pts_${checkbox.value}"]`).value)
+                }))
+            };
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '送信中...';
+                
+                const response = await fetch('/api/submit_match', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(matchData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('✅ 試合を記録しました！', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    showMessage('❌ エラーが発生しました: ' + result.error, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '送信して記録';
+                }
+            } catch (error) {
+                showMessage('❌ 通信エラー: ' + error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '送信して記録';
+            }
+        });
+        
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
     </script>
 </body>
 </html>

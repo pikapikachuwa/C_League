@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麻雀リーグ 戦績ダッシュボード</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Helvetica Neue',Arial,'Hiragino Sans',sans-serif;background:#f5f5f0;color:#222;min-height:100vh;padding:1.5rem;}
+.container{max-width:1100px;margin:0 auto;}
+.dash-header{display:flex;align-items:baseline;justify-content:space-between;padding:0 0 0.75rem;border-bottom:1px solid #ddd;margin-bottom:1.25rem;flex-wrap:wrap;gap:6px;}
+.dash-title{font-size:18px;font-weight:600;color:#111;}
+.dash-meta{font-size:12px;color:#888;margin-left:10px;}
+.medal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1rem;}
+@media(max-width:600px){.medal-grid{grid-template-columns:1fr;}}
+.medal-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1rem;}
+.medal-card.gold{border-color:#c9a84c;background:#fffdf5;}
+.medal-card.silver{border-color:#aaa;background:#fafafa;}
+.medal-card.bronze{border-color:#b87333;background:#fff9f5;}
+.medal-label{font-size:11px;color:#888;margin-bottom:2px;}
+.medal-name{font-size:17px;font-weight:600;margin-bottom:5px;}
+.medal-pts{font-size:24px;font-weight:700;}
+.medal-sub{font-size:11px;color:#888;margin-top:4px;}
+.pos{color:#1a9e5c;}.neg{color:#d63a3a;}
+.chart-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+.chart-title{font-size:13px;font-weight:600;color:#555;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.tab-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.tab-btn{font-size:11px;padding:3px 10px;border-radius:6px;background:transparent;border:1px solid #ccc;color:#666;cursor:pointer;transition:all 0.15s;}
+.tab-btn:hover{background:#f0f0f0;}
+.tab-btn.active{background:#333;color:#fff;border-color:#333;}
+.tbl-wrap{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{padding:6px 9px;font-size:10px;color:#777;font-weight:600;white-space:nowrap;border-bottom:2px solid #eee;text-align:right;background:#fafafa;}
+.tbl th.left{text-align:left;}.tbl th.center{text-align:center;}
+.tbl td{padding:6px 9px;white-space:nowrap;border-bottom:1px solid #f0f0f0;text-align:right;}
+.tbl td.left{text-align:left;font-weight:600;}.tbl td.center{text-align:center;font-size:13px;}
+.tbl tr:hover td{background:#f9f9f9;}
+.sep{border-left:2px solid #eee;}
+.grp{font-size:9px;color:#aaa;text-align:center;padding:3px 4px;background:#f5f5f5;border-bottom:1px solid #eee;}
+.nav-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;}
+.nav-links a{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#fff;background:#333;padding:6px 14px;border-radius:20px;text-decoration:none;}
+.nav-links a.btn-total{background:#1a5276;}
+.nav-links a.btn-rank{background:#7b341e;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="dash-header">
+  <div>
+    <span class="dash-title">🀄 麻雀リーグ 戦績ダッシュボード</span>
+    <span class="dash-meta"><span id="meta-games">--</span>半荘 ／ <span id="meta-days">--</span>活動日 ／ 最終更新 <span id="meta-update">--</span></span>
+  </div>
+  <div class="nav-links">
+    <a href="/total_dashboard" class="btn-total">🏆 Season2+3 トータル →</a>
+    <a href="/rank_board" class="btn-rank">🏯 WGランクボード →</a>
+  </div>
+</div>
+
+<div class="medal-grid" id="medal-grid"></div>
+
+<div class="chart-card">
+  <div class="chart-title"><span>📋 サマリー表</span></div>
+  <div class="tbl-wrap">
+    <table id="summary-tbl" style="border-collapse:collapse;font-size:11px;width:100%;min-width:700px;">
+      <thead id="summary-thead"></thead>
+      <tbody id="summary-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title"><span>累計ポイント推移</span></div>
+  <div style="height:280px;position:relative;"><canvas id="line-chart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">
+    <span id="bar-label">累計Pts比較</span>
+    <div class="tab-btns">
+      <button class="tab-btn active" onclick="switchBar('totalPts','累計Pts比較',this)">累計Pts</button>
+      <button class="tab-btn" onclick="switchBar('ptsPerGame','Pts/G比較',this)">Pts/G</button>
+      <button class="tab-btn" onclick="switchBar('avgRank','平均順位比較',this)">平均順位</button>
+      <button class="tab-btn" onclick="switchBar('topRate','Top率比較',this)">Top率</button>
+      <button class="tab-btn" onclick="switchBar('renRate','連帯率比較',this)">連帯率</button>
+      <button class="tab-btn" onclick="switchBar('avoidRate','4着回避率比較',this)">回避率</button>
+      <button class="tab-btn" onclick="switchBar('plusRate','プラス率比較',this)">プラス率</button>
+      <button class="tab-btn" onclick="switchBar('stdDev','標準偏差比較',this)">標準偏差</button>
+    </div>
+  </div>
+  <div style="height:220px;position:relative;"><canvas id="bar-chart"></canvas></div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">
+    <span>詳細テーブル</span>
+    <div class="tab-btns">
+      <button class="tab-btn" onclick="renderTable('member',this)">メンバー順</button>
+      <button class="tab-btn active" onclick="renderTable('totalPts',this)">累計Pts順</button>
+      <button class="tab-btn" onclick="renderTable('ptsPerGame',this)">Pts/G順</button>
+      <button class="tab-btn" onclick="renderTable('avgRank',this)">平均順位順</button>
+      <button class="tab-btn" onclick="renderTable('topRate',this)">Top率順</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th class="grp center" colspan="2"></th>
+          <th class="grp center sep" colspan="2">基本</th>
+          <th class="grp center sep" colspan="5">順位系</th>
+          <th class="grp center sep" colspan="3">安定性</th>
+          <th class="grp center sep" colspan="1">直近20戦</th>
+          <th class="grp center sep" colspan="4">累計Pts</th>
+          <th class="grp center sep" colspan="4">着順回数</th>
+        </tr>
+        <tr>
+          <th class="center">順</th><th class="left">名前</th>
+          <th class="sep">半荘数</th><th>平均順位</th>
+          <th class="sep">Top率</th><th>連帯率</th><th>4着回避率</th><th>ラス率</th><th>プラス率</th>
+          <th class="sep">標準偏差</th><th>1着時Pts</th><th>4着時Pts</th>
+          <th class="sep">直近平均順位</th>
+          <th class="sep">累計Pts</th><th>Pts/G</th><th>MaxPts</th><th>MinPts</th>
+          <th class="sep">1st</th><th>2nd</th><th>3rd</th><th>4th</th>
+        </tr>
+      </thead>
+      <tbody id="detail-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+const MEMBER_ORDER = ['土岐','矢嶋','藤木','松林','鹿山','岡崎','大塚','河井','本井'];
+const COLORS_MAP = {'土岐':'#4a90d9','矢嶋':'#e74c3c','藤木':'#e67e22','松林':'#9b59b6','鹿山':'#95a5a6','岡崎':'#27ae60','大塚':'#c0392b','河井':'#f1c40f','本井':'#1abc9c'};
+
+let DATA = [];
+let TREND = [];
+let sorted = [];
+
+function dn(n){
+  const DN={'土岐':'TK_n','矢嶋':'YaJi','藤木':'FuJi','松林':'MaTsuB','鹿山':'KaYaM','岡崎':'OkaZ','大塚':'OtsuK','河井':'KaWa_i','本井':'MoTo_i'};
+  return DN[n]||n;
+}
+
+function pc(n){ return n > 0 ? 'pos' : n < 0 ? 'neg' : ''; }
+function ps(n){ return n == null ? '-' : (n > 0 ? '+' : '') + n; }
+function f1(n){ return n == null ? '-' : Number(n).toFixed(1); }
+function f2(n){ return n == null ? '-' : Number(n).toFixed(2); }
+function pct(n){ return n == null ? '-' : f1(n) + '%'; }
+
+async function loadData() {
+  try {
+    const resp = await fetch('/api/ranking');
+    const json = await resp.json();
+    DATA = json.members || [];
+    sorted = [...DATA].sort((a,b) => b.totalPts - a.totalPts);
+    
+    const trend_resp = await fetch('/api/trend');
+    const trend_json = await trend_resp.json();
+    TREND = trend_json.trend || [];
+    
+    // メタ情報を更新
+    const totalGames = DATA.reduce((sum, d) => sum + d.games, 0);
+    document.getElementById('meta-games').textContent = totalGames;
+    document.getElementById('meta-days').textContent = TREND.length;
+    const now = new Date();
+    document.getElementById('meta-update').textContent = now.toLocaleDateString('ja-JP');
+    
+    buildMedals();
+    buildLineChart();
+    renderTable('totalPts', null);
+    switchBar('totalPts', '累計Pts比較', document.querySelector('.tab-btn.active'));
+    buildSummaryTable();
+  } catch(e) {
+    console.error('データ読み込みエラー:', e);
+  }
+}
+
+function buildMedals(){
+  const grid = document.getElementById('medal-grid');
+  grid.innerHTML = '';
+  ['gold','silver','bronze'].forEach((cls, i) => {
+    const s = sorted[i];
+    const labels = ['🥇 1位','🥈 2位','🥉 3位'];
+    const c = document.createElement('div');
+    c.className = 'medal-card ' + cls;
+    c.innerHTML = '<div class="medal-label">' + labels[i] + '</div>'
+      + '<div class="medal-name">' + dn(s.name) + '</div>'
+      + '<div class="medal-pts ' + pc(s.totalPts) + '">' + ps(s.totalPts) + ' pts</div>'
+      + '<div class="medal-sub" style="margin-top:4px;">平均順位 ' + f2(s.avgRank) + ' ／ Top率 ' + pct(s.topRate) + ' ／ 連帯率 ' + pct(s.renRate) + '</div>';
+    grid.appendChild(c);
+  });
+}
+
+function buildLineChart(){
+  const ctx = document.getElementById('line-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: TREND.map(d => d.date || ''),
+      datasets: MEMBER_ORDER.map((m, i) => {
+        const color = COLORS_MAP[m] || '#aaa';
+        const data = TREND.map(d => d[m] !== undefined ? d[m] : null);
+        return {
+          label: dn(m), data: data,
+          borderColor: color, backgroundColor: color,
+          borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: 0.1
+        };
+      })
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 12, padding: 6 } },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+let barChart = null;
+function switchBar(key, label, btn){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('bar-label').textContent = label;
+  const byVal = [...DATA].sort((a,b) => key === 'avgRank' ? a[key]-b[key] : b[key]-a[key]);
+  const vals = byVal.map(d => d[key]);
+  const isRate = ['topRate','renRate','avoidRate','lastRate','plusRate'].includes(key);
+  const bc = vals.map(v => key === 'avgRank'
+    ? (v <= 2.5 ? 'rgba(26,158,92,0.75)' : 'rgba(214,58,58,0.75)')
+    : (v >= 0   ? 'rgba(74,144,217,0.75)' : 'rgba(214,58,58,0.75)'));
+  if(barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('bar-chart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: byVal.map(d => dn(d.name)), datasets: [{ data: vals, backgroundColor: bc, borderRadius: 4, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => {
+          const v = ctx.raw;
+          if(key === 'avgRank') return f2(v);
+          if(isRate) return f1(v) + '%';
+          return ps(f1(v));
+        }}}
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, callback: v => isRate ? v + '%' : v } }
+      }
+    }
+  });
+}
+
+function renderTable(sortKey, btn){
+  if(btn){
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  let s;
+  if(sortKey === 'member'){
+    s = MEMBER_ORDER.map(name => DATA.find(d => d.name === name)).filter(Boolean);
+  } else if(sortKey === 'avgRank'){
+    s = [...DATA].sort((a,b) => a[sortKey]-b[sortKey]);
+  } else {
+    s = [...DATA].sort((a,b) => b[sortKey]-a[sortKey]);
+  }
+  const tbody = document.getElementById('detail-tbody');
+  tbody.innerHTML = '';
+  s.forEach(d => {
+    const rank = sorted.findIndex(x => x.name === d.name) + 1;
+    const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':String(rank);
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="center">' + medal + '</td>'
+      + '<td class="left">' + dn(d.name) + '</td>'
+      + '<td class="sep">' + d.games + '</td><td>' + f2(d.avgRank) + '</td>'
+      + '<td class="sep">' + pct(d.topRate) + '</td><td>' + pct(d.renRate) + '</td><td>' + pct(d.avoidRate) + '</td>'
+      + '<td class="' + pc(-d.lastRate) + '">' + pct(d.lastRate) + '</td>'
+      + '<td class="' + pc(d.plusRate-50) + '">' + pct(d.plusRate) + '</td>'
+      + '<td class="sep">' + f1(d.stdDev) + '</td>'
+      + '<td class="' + pc(d.avgPts1st) + '">' + ps(f1(d.avgPts1st)) + '</td>'
+      + '<td class="' + pc(d.avgPts4th) + '">' + ps(f1(d.avgPts4th)) + '</td>'
+      + '<td class="sep">' + f2(d.recent20AvgRank) + '</td>'
+      + '<td class="sep ' + pc(d.totalPts) + '" style="font-weight:700;">' + ps(d.totalPts) + '</td>'
+      + '<td class="' + pc(d.ptsPerGame) + '">' + ps(f1(d.ptsPerGame)) + '</td>'
+      + '<td class="' + pc(d.maxPts) + '">' + ps(d.maxPts) + '</td>'
+      + '<td class="' + pc(d.minPts) + '">' + ps(d.minPts) + '</td>'
+      + '<td class="sep">' + d.r1 + '</td><td>' + d.r2 + '</td><td>' + d.r3 + '</td><td>' + d.r4 + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function buildSummaryTable(){
+  const ORDER = ['土岐','藤木','鹿山','河井','松林','岡崎','大塚','矢嶋','本井'];
+  const S = {
+    th_label: 'padding:5px 8px;border:1px solid #b0b0b0;background:#d9d9d9;font-weight:700;font-size:11px;text-align:left;white-space:nowrap;',
+    th_member:'padding:5px 6px;border:1px solid #b0b0b0;background:#dce6f1;font-weight:700;font-size:11px;text-align:center;white-space:nowrap;',
+    td_base:  'padding:4px 7px;border:1px solid #c8c8c8;text-align:center;white-space:nowrap;font-size:11px;',
+    td_label: 'padding:4px 8px;border:1px solid #c8c8c8;font-weight:600;font-size:11px;white-space:nowrap;background:#f2f2f2;text-align:left;',
+  };
+  const thead = document.getElementById('summary-thead');
+  let hRow = '<tr><th style="'+S.th_label+'">メンバー</th>';
+  ORDER.forEach(m => { hRow += '<th style="'+S.th_member+'">'+dn(m)+'</th>'; });
+  thead.innerHTML = hRow + '</tr>';
+  
+  const allData = ORDER.map(m => DATA.find(x=>x.name===m));
+  const get = (key) => allData.map(d => d ? d[key] : 0);
+  
+  function getRank(val, arr, higherBetter){
+    const sorted = [...new Set(arr)].sort((a,b)=> higherBetter ? b-a : a-b);
+    return sorted.indexOf(val) + 1;
+  }
+  
+  const rows = [
+    { label:'半荘数', render:(d)=>{
+      const arr=get('games'); const mx=Math.max(...arr);
+      return '<td style="'+S.td_base+(d.games===mx?'background:#fff2cc;font-weight:700;':'')+'">'+d.games+'</td>';
+    }},
+    { label:'累計Pts', render:(d)=>{
+      const col=d.totalPts>=0?'#1a7c3e':'#c00000';
+      const bg=d.totalPts>=0?'background:#eff7ef;':'background:#fff0f0;';
+      return '<td style="'+S.td_base+bg+'color:'+col+';font-weight:700;">✓ '+(d.totalPts>0?'+':'')+d.totalPts+'</td>';
+    }},
+    { label:'Pts/G', render:(d)=>{
+      const col=d.ptsPerGame>=0?'#1a7c3e':'#c00000';
+      return '<td style="'+S.td_base+'color:'+col+';">'+ps(f1(d.ptsPerGame))+'</td>';
+    }},
+    { label:'Top率', render:(d)=> '<td style="'+S.td_base+'">'+d.topRate.toFixed(1)+'%</td>' },
+    { label:'連帯率', render:(d)=> '<td style="'+S.td_base+'">'+d.renRate.toFixed(1)+'%</td>' },
+    { label:'4着回避率', render:(d)=> '<td style="'+S.td_base+'">'+d.avoidRate.toFixed(1)+'%</td>' },
+  ];
+  
+  const tbody = document.getElementById('summary-tbody');
+  rows.forEach(row => {
+    let html = '<tr><td style="'+S.td_label+'">'+row.label+'</td>';
+    allData.forEach(d => { html += d ? row.render(d) : '<td style="'+S.td_base+'">-</td>'; });
+    tbody.innerHTML += html + '</tr>';
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>

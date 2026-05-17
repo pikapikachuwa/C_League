@@ -1,255 +1,110 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🀄 C_League - 麻雀リーグ管理</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #eee;
-            min-height: 100vh;
-            padding: 1.5rem;
-        }
-        
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: #ffd700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .header p {
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: #ffd700;
-            color: #222;
-        }
-        
-        .btn-primary:hover {
-            background: #ffed4e;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .rankings {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .rank-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-        
-        .rank-card:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-4px);
-        }
-        
-        .rank-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 4px;
-            height: 100%;
-            border-radius: 12px 0 0 12px;
-        }
-        
-        .rank-card {
-            position: relative;
-        }
-        
-        .rank-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .rank-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .rank-number.gold {
-            color: #ffd700;
-        }
-        
-        .rank-number.silver {
-            color: #c0c0c0;
-        }
-        
-        .rank-number.bronze {
-            color: #cd7f32;
-        }
-        
-        .member-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-        
-        .rank-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .stat {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.75rem;
-            border-radius: 6px;
-            text-align: center;
-        }
-        
-        .stat-label {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .pts-positive {
-            color: #66bb6a;
-        }
-        
-        .pts-negative {
-            color: #ff7043;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1.5rem;
-            color: #aaa;
-        }
-        
-        .empty-state p {
-            margin-bottom: 1rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麻雀リーグ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:#f5f5f0;color:#222;min-height:100vh;padding:1.5rem;}
+.container{max-width:1100px;margin:0 auto;}
+.header{padding-bottom:1.5rem;border-bottom:2px solid #ddd;margin-bottom:1.5rem;}
+.header h1{font-size:28px;font-weight:700;color:#111;margin-bottom:0.5rem;}
+.header p{font-size:14px;color:#888;}
+.nav-links{display:flex;gap:12px;margin-top:1rem;flex-wrap:wrap;}
+.nav-links a{display:inline-block;background:#333;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:600;transition:background .2s;}
+.nav-links a:hover{background:#555;}
+.nav-links a.btn-record{background:#2196F3;}
+.nav-links a.btn-record:hover{background:#1976D2;}
+.nav-links a.btn-dashboard{background:#1a5276;}
+.nav-links a.btn-dashboard:hover{background:#0d3a66;}
+.ranking-table{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;}
+.ranking-table thead{background:#f5f5f5;}
+.ranking-table th{padding:12px 16px;text-align:left;font-weight:700;color:#333;border-bottom:2px solid #ddd;}
+.ranking-table td{padding:12px 16px;border-bottom:1px solid #f0f0f0;}
+.ranking-table tr:hover{background:#f9f9f9;}
+.rank-num{font-weight:700;color:#1a5276;font-size:16px;width:40px;}
+.member-name{font-weight:600;color:#222;}
+.member-color{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;}
+.pts-positive{color:#1a7c3e;font-weight:700;}
+.pts-negative{color:#c00000;font-weight:700;}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:1rem;}
+.card h2{font-size:16px;font-weight:700;margin-bottom:1rem;color:#333;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;}
+.stat-item{background:#f5f5f5;padding:1rem;border-radius:8px;text-align:center;}
+.stat-label{font-size:12px;color:#888;margin-bottom:0.5rem;}
+.stat-value{font-size:20px;font-weight:700;color:#1a5276;}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🀄 C_League</h1>
-            <p>麻雀リーグ管理システム</p>
-            <div class="nav-buttons">
-                <a href="/" class="btn btn-primary">📊 ランキング</a>
-                <a href="/record" class="btn btn-secondary">➕ 試合記録</a>
-            </div>
-        </div>
-        
-        {% if rankings and rankings|length > 0 %}
-        <div class="rankings" id="rankings-container">
-            {% for rank in rankings %}
-            <div class="rank-card">
-                <div class="rank-header">
-                    <span class="rank-number {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% endif %}">
-                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}位{% endif %}
-                    </span>
-                    <div class="member-name" style="color: {{ rank.color }};">
-                        {{ rank.name }}
-                    </div>
-                </div>
-                <div class="rank-stats">
-                    <div class="stat">
-                        <div class="stat-label">累計Pts</div>
-                        <div class="stat-value {% if rank.total_pts and rank.total_pts >= 0 %}pts-positive{% else %}pts-negative{% endif %}">
-                            {% if rank.total_pts %}{{ '+' if rank.total_pts >= 0 else '' }}{{ rank.total_pts }}{% else %}0{% endif %}
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">試合数</div>
-                        <div class="stat-value">{{ rank.match_count or 0 }}回</div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <p>📭 まだ試合データがありません</p>
-            <p><a href="/record" class="btn btn-primary">最初の試合を記録する →</a></p>
-        </div>
-        {% endif %}
+<div class="container">
+
+<div class="header">
+  <h1>🀄 麻雀リーグ</h1>
+  <p>メンバーの成績を記録・管理するシステムです</p>
+  <div class="nav-links">
+    <a href="/record" class="btn-record">+ 試合記録を追加</a>
+    <a href="/dashboard" class="btn-dashboard">📊 Season3 ダッシュボード</a>
+    <a href="/total_dashboard" class="btn-dashboard">🏆 通算ダッシュボード</a>
+    <a href="/rank_board" class="btn-dashboard">🏯 WGランクボード</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📈 現在のランキング</h2>
+  {% if rankings %}
+  <table class="ranking-table" style="width:100%;">
+    <thead>
+      <tr>
+        <th style="width:50px;">順位</th>
+        <th style="width:150px;">メンバー</th>
+        <th style="width:100px;text-align:right;">合計Pts</th>
+        <th style="width:100px;text-align:right;">試合数</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ranking in rankings %}
+      <tr>
+        <td class="rank-num">
+          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+        </td>
+        <td class="member-name">
+          <span class="member-color" style="background-color:{{ ranking[3] }};"></span>
+          {{ ranking[1] }}
+        </td>
+        <td style="text-align:right;">
+          <span class="{% if ranking[4] >= 0 %}pts-positive{% else %}pts-negative{% endif %}">
+            {{ '{:+,}'.format(ranking[4]) if ranking[4] != 0 else '0' }}
+          </span>
+        </td>
+        <td style="text-align:right;">{{ ranking[5] }}半荘</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#888;padding:2rem;text-align:center;">まだデータがありません。試合を記録してください。</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>ℹ️ このシステムについて</h2>
+  <div class="stat-grid">
+    <div class="stat-item">
+      <div class="stat-label">記録方法</div>
+      <div style="font-size:14px;color:#333;">「試合記録を追加」ボタンから、試合結果を入力</div>
     </div>
-    
-    <script>
-        // 定期的にランキングを更新（30秒ごと）
-        setInterval(() => {
-            fetch('/api/ranking')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('ランキング更新:', data);
-                    // 必要に応じてページを更新
-                })
-                .catch(err => console.error('更新エラー:', err));
-        }, 30000);
-    </script>
+    <div class="stat-item">
+      <div class="stat-label">WGランク</div>
+      <div style="font-size:14px;color:#333;">順位とスコアから自動計算</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">ダッシュボード</div>
+      <div style="font-size:14px;color:#333;">詳細な統計情報を確認</div>
+    </div>
+  </div>
+</div>
+
+</div>
 </body>
 </html>

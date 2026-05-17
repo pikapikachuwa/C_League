@@ -3,388 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🀄 試合記録 - C_League</title>
+    <title>試合記録</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #eee;
-            min-height: 100vh;
-            padding: 1.5rem;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .header h1 {
-            font-size: 2rem;
-            color: #ffd700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .back-link {
-            display: inline-block;
-            color: #aaa;
-            text-decoration: none;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .back-link:hover {
-            color: #fff;
-        }
-        
-        .form-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #ffd700;
-        }
-        
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            font-size: 1rem;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            background: rgba(0, 0, 0, 0.5);
-            border-color: #ffd700;
-        }
-        
-        .form-group input::placeholder {
-            color: #999;
-        }
-        
-        .member-selection {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .member-checkbox {
-            display: none;
-        }
-        
-        .member-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(0, 0, 0, 0.2);
-            font-weight: 600;
-        }
-        
-        .member-checkbox:checked + .member-label {
-            background: rgba(255, 215, 0, 0.2);
-            border-color: #ffd700;
-            color: #ffd700;
-        }
-        
-        .pts-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        
-        .pts-input-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .pts-input-group label {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 0.25rem;
-        }
-        
-        .pts-input-group input {
-            padding: 0.5rem;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: #ffd700;
-            color: #222;
-            flex: 1;
-        }
-        
-        .btn-primary:hover {
-            background: #ffed4e;
-            transform: translateY(-2px);
-        }
-        
-        .btn-primary:disabled {
-            background: #999;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .message {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-        
-        .message.success {
-            background: rgba(102, 187, 106, 0.2);
-            color: #66bb6a;
-            border: 1px solid #66bb6a;
-        }
-        
-        .message.error {
-            background: rgba(255, 112, 67, 0.2);
-            color: #ff7043;
-            border: 1px solid #ff7043;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { margin-bottom: 20px; color: #333; }
+        .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        label { display: block; margin-top: 12px; font-weight: 600; color: #333; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        button { width: 100%; padding: 12px; margin-top: 12px; background: #4a90d9; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #357abd; }
+        .member-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .member-input { display: flex; flex-direction: column; }
+        .member-input label { font-size: 12px; margin: 0; }
+        .member-input input { margin: 4px 0 0 0; }
+        .success { color: #27ae60; margin-top: 10px; padding: 10px; background: #e8f8f5; border-radius: 4px; }
+        .error { color: #c0392b; margin-top: 10px; padding: 10px; background: #fadbd8; border-radius: 4px; }
+        hr { margin: 20px 0; border: none; border-top: 1px solid #ddd; }
+        .file-input-wrap { position: relative; }
+        .file-input-label { display: inline-block; padding: 10px 20px; background: #27ae60; color: #fff; border-radius: 4px; cursor: pointer; }
+        .file-input-label:hover { background: #229954; }
+        input[type="file"] { display: none; }
+        .file-name { margin-top: 8px; font-size: 13px; color: #666; }
+        .import-status { margin-top: 10px; padding: 10px; border-radius: 4px; font-size: 13px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="/" class="back-link">← ランキングに戻る</a>
-            <h1>試合を記録する</h1>
+<div class="container">
+    <h1>🀄 試合記録</h1>
+
+    <!-- セクション1: Excel インポート -->
+    <div class="card">
+        <h2>📊 Excel ファイルをインポート</h2>
+        <p style="margin-bottom: 12px; color: #666; font-size: 13px;">
+            Season2_戦績データ.xlsx をアップロードして、一括で試合データを登録できます。
+        </p>
+        <div class="file-input-wrap">
+            <label for="excel-file" class="file-input-label">ファイルを選択</label>
+            <input type="file" id="excel-file" accept=".xlsx,.xls" />
+            <div class="file-name" id="file-name"></div>
         </div>
-        
-        <div class="form-card">
-            <div id="message" class="message"></div>
-            
-            <form id="match-form">
-                <!-- 試合番号 -->
-                <div class="form-group">
-                    <label for="match_number">試合番号</label>
-                    <input 
-                        type="number" 
-                        id="match_number" 
-                        name="match_number" 
-                        value="{{ next_match_number }}"
-                        readonly
-                        style="background: rgba(0, 0, 0, 0.5);"
-                    >
-                </div>
-                
-                <!-- 活動日 -->
-                <div class="form-group">
-                    <label for="play_date">活動日</label>
-                    <input 
-                        type="date" 
-                        id="play_date" 
-                        name="play_date" 
-                        required
-                    >
-                </div>
-                
-                <!-- メンバー選択 -->
-                <div class="form-group">
-                    <label>参加メンバー（4名を選択）</label>
-                    <div class="member-selection">
-                        {% for member in members %}
-                        <input 
-                            type="checkbox" 
-                            id="member_{{ member.member_id }}"
-                            class="member-checkbox"
-                            value="{{ member.member_id }}"
-                            data-name="{{ member.name }}"
-                        >
-                        <label for="member_{{ member.member_id }}" class="member-label" style="border-color: {{ member.color }};">
-                            {{ member.name }}
-                        </label>
-                        {% endfor %}
-                    </div>
-                </div>
-                
-                <!-- 得点入力 -->
-                <div class="form-group">
-                    <label>各メンバーの得点（Pts）</label>
-                    <div class="pts-inputs" id="pts-inputs-container">
-                        <!-- JavaScript で動的に生成 -->
-                    </div>
-                </div>
-                
-                <!-- 送信ボタン -->
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" id="submit-btn">
-                        送信して記録
-                    </button>
-                    <a href="/" class="btn btn-secondary">キャンセル</a>
-                </div>
-            </form>
-        </div>
+        <button onclick="importExcel()" style="background: #27ae60;">📤 インポート実行</button>
+        <div id="import-result"></div>
     </div>
-    
-    <script>
-        const form = document.getElementById('match-form');
-        const messageDiv = document.getElementById('message');
-        const ptsInputsContainer = document.getElementById('pts-inputs-container');
-        const memberCheckboxes = document.querySelectorAll('.member-checkbox');
-        const submitBtn = document.getElementById('submit-btn');
-        
-        // 本日の日付をデフォルト
-        document.getElementById('play_date').valueAsDate = new Date();
-        
-        // メンバー選択時に得点入力欄を動的に生成
-        memberCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updatePtsInputs);
-        });
-        
-        function updatePtsInputs() {
-            ptsInputsContainer.innerHTML = '';
-            const selectedMembers = Array.from(memberCheckboxes)
-                .filter(cb => cb.checked);
-            
-            if (selectedMembers.length !== 4) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = `送信して記録（${selectedMembers.length}/4人選択）`;
-            } else {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '送信して記録';
-            }
-            
-            selectedMembers.forEach(checkbox => {
-                const memberId = checkbox.value;
-                const memberName = checkbox.dataset.name;
-                
-                const inputGroup = document.createElement('div');
-                inputGroup.className = 'pts-input-group';
-                inputGroup.innerHTML = `
-                    <label>${memberName}の得点</label>
-                    <input 
-                        type="number" 
-                        name="pts_${memberId}" 
-                        data-member-id="${memberId}"
-                        required
-                        placeholder="例: +45"
-                    >
-                `;
-                ptsInputsContainer.appendChild(inputGroup);
+
+    <hr>
+
+    <!-- セクション2: 個別試合記録 -->
+    <div class="card">
+        <h2>✏️ 1試合を手動入力</h2>
+        <label>半荘番号</label>
+        <input type="number" id="match-number" value="{{ next_match_number }}" readonly style="background: #f9f9f9;">
+
+        <label>活動日</label>
+        <input type="date" id="play-date">
+
+        <label style="margin-top: 16px;">参加メンバーのポイント</label>
+        {% for member in members %}
+        <div class="member-row">
+            <div class="member-input">
+                <label>{{ member.name }}</label>
+                <input type="number" class="member-pts" data-member-id="{{ member.member_id }}" placeholder="ポイント" />
+            </div>
+        </div>
+        {% endfor %}
+
+        <button onclick="submitMatch()">📝 この試合を記録</button>
+        <div id="submit-result"></div>
+    </div>
+</div>
+
+<script>
+// ファイル選択時
+document.getElementById('excel-file').addEventListener('change', function() {
+    const fileName = this.files[0]?.name || '';
+    document.getElementById('file-name').textContent = fileName ? `選択: ${fileName}` : '';
+});
+
+// Excel インポート
+function importExcel() {
+    const fileInput = document.getElementById('excel-file');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        showImportResult('ファイルを選択してください', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    showImportResult('インポート中...', 'status');
+
+    fetch('/api/import', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showImportResult(`✅ ${data.message}`, 'success');
+            fileInput.value = '';
+            document.getElementById('file-name').textContent = '';
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showImportResult(`❌ エラー: ${data.error}`, 'error');
+        }
+    })
+    .catch(err => {
+        showImportResult(`❌ エラー: ${err.message}`, 'error');
+    });
+}
+
+function showImportResult(message, type) {
+    const el = document.getElementById('import-result');
+    el.textContent = message;
+    el.className = 'import-status ' + (type === 'success' ? 'success' : type === 'error' ? 'error' : '');
+}
+
+// 試合を記録
+function submitMatch() {
+    const date = document.getElementById('play-date').value;
+    const matchNum = document.getElementById('match-number').value;
+
+    if (!date) {
+        alert('活動日を選択してください');
+        return;
+    }
+
+    const results = [];
+    document.querySelectorAll('.member-pts').forEach(input => {
+        const pts = input.value;
+        if (pts !== '' && !isNaN(pts)) {
+            results.push({
+                member_id: parseInt(input.dataset.memberId),
+                pts: parseInt(pts)
             });
         }
-        
-        // フォーム送信
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const selectedMembers = Array.from(memberCheckboxes)
-                .filter(cb => cb.checked);
-            
-            if (selectedMembers.length !== 4) {
-                showMessage('4名のメンバーを選択してください', 'error');
-                return;
-            }
-            
-            const matchData = {
-                match_number: parseInt(document.getElementById('match_number').value),
-                play_date: document.getElementById('play_date').value,
-                results: selectedMembers.map(checkbox => ({
-                    member_id: parseInt(checkbox.value),
-                    pts: parseInt(document.querySelector(`input[name="pts_${checkbox.value}"]`).value)
-                }))
-            };
-            
-            try {
-                submitBtn.disabled = true;
-                submitBtn.textContent = '送信中...';
-                
-                const response = await fetch('/api/submit_match', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(matchData)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showMessage('✅ 試合を記録しました！', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1500);
-                } else {
-                    showMessage('❌ エラーが発生しました: ' + result.error, 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '送信して記録';
-                }
-            } catch (error) {
-                showMessage('❌ 通信エラー: ' + error.message, 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '送信して記録';
-            }
-        });
-        
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
+    });
+
+    if (results.length !== 4) {
+        alert('4人全員のポイントを入力してください');
+        return;
+    }
+
+    const payload = {
+        match_number: parseInt(matchNum),
+        play_date: date,
+        results: results
+    };
+
+    fetch('/api/submit_match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const resultEl = document.getElementById('submit-result');
+            resultEl.innerHTML = `<div class="success">✅ 試合を記録しました（match_id: ${data.match_id}）</div>`;
+            document.querySelectorAll('.member-pts').forEach(input => input.value = '');
+            document.getElementById('play-date').value = '';
+            setTimeout(() => {
+                resultEl.innerHTML = '';
+                location.reload();
+            }, 2000);
+        } else {
+            document.getElementById('submit-result').innerHTML = `<div class="error">❌ エラー: ${data.error}</div>`;
         }
-    </script>
+    })
+    .catch(err => {
+        document.getElementById('submit-result').innerHTML = `<div class="error">❌ エラー: ${err.message}</div>`;
+    });
+}
+
+// 本日の日付をデフォルト設定
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('play-date').value = today;
+</script>
 </body>
 </html>
